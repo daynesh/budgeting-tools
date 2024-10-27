@@ -1,0 +1,21 @@
+{
+  "name": "budgeting-tools",
+  "version": "1.0.0",
+  "description": "Tools to support budgeting and forecasting needs",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "figlet": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "typescript": "^5.6.3"
+  }
+}
