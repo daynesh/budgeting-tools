@@ -4,8 +4,7 @@ import path from "path";
 import figlet from "figlet";
 import { parse } from "csv-parse";
 
-// Display a figlet
-console.log(figlet.textSync("Anything I want!"));
+import Expense from "./expense.js";
 
 // Define CLI options
 const program = new Command();
@@ -17,50 +16,72 @@ program
 
 const options = program.opts();
 
-type Transaction = {
+type ChaseTransaction = {
     transactionDate: string;
     postDate: string;
     description: string;
     category: string;
     type: string;
-    amountAsString: string;
-    amountAsUsd: number;
+    amount: string;
     memo: string;
 };
 
-// 1. Parse CSV file listing all transactions
+// Parse CSV file listing all transactions
 if (options.inputFile) {
     const fileContent = fs.readFileSync(options.inputFile);
 
     // Define headers for input file
-    const headers = ['Transaction Date', 'Post Date', 'Description', 'Category', 'Type', 'Amount', 'Memo'];
+    const inputHeaders = ['transactionDate', 'postDate', 'description', 'category', 'type', 'amount', 'memo'];
 
     // Initialize the parser
     const parser = parse(fileContent, {
         delimiter: ',',
-        columns: headers,
+        columns: inputHeaders,
     });
 
-    // Use the readable stream api to consume transactions
-    const transactions: Transaction[] = [];
-    parser.on("readable", function() {
-        let transaction;
-        while ((transaction = parser.read()) !== null) {
-            console.log("Transaction: ", transaction);
-            transactions.push(transaction);
-        }
+    // Initialize vars we will use
+    const listOfExpenses: Expense[] = [];
+    let lineNumber = 0;
 
+    // Use the readable stream api to consume transactions
+    parser.on("readable", function() {
+        let inputTransaction: ChaseTransaction;
+        while ((inputTransaction = parser.read()) !== null) {
+            // Increment line number counter
+            lineNumber += 1;
+
+            console.log(`Transaction #${lineNumber}: `, inputTransaction);
+
+            // Skip header line
+            if (lineNumber == 1)
+                continue;
+
+            // Skip over transactions that are "credits" as we're only interested in tracking expenses
+            var amountAsUsd = parseFloat(inputTransaction.amount);
+            if (amountAsUsd >= 0)
+                continue;
+
+            // Initialize the output transaction
+            const expense = new Expense(
+                inputTransaction.transactionDate,
+                inputTransaction.description,
+                inputTransaction.category,
+                inputTransaction.amount
+            )
+
+            // Append output to our array of transformed expenses
+            listOfExpenses.push(expense.transform());
+        }
     });
 
     // Catch any error
     parser.on("error", function(err) {
         console.error(err.message);
     });
-}
 
-// 2. Create output CSV file to store transformation
-// 3. Go through input file one line at a time:
-//      a) Remove all transactions that were credits
-//      b) Identify if transaction requires a more descriptive name
-//      c) Map Chase transaction category into our own category
-//      d) Write line into output CSV file
+    parser.on("end", function() {
+        console.log("Here's our transformed list of expenses", listOfExpenses);
+
+        console.log(figlet.textSync("Finished!"));
+    });
+}

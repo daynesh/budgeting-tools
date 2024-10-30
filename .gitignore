@@ -7,3 +7,10 @@ web_modules/
 
 # TypeScript cache
 *.tsbuildinfo\
+
+# IDE files
+.vscode/
+
+# Any input and/or output files
+input.csv
+output.csv
