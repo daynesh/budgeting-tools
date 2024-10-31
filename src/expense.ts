@@ -3,24 +3,28 @@ export default class Expense {
     description: string;
     category: string;
     amount: Number;
+    memo: string;
 
-    constructor(date: string, description: string, category: string, amount: string) {
+    constructor(date: string, description: string, category: string, amount: string, memo: string) {
         this.date = date;
         this.description = description;
         this.category = category;
 
         // All debits are listed as negative by Chase so we must negate before creating output
         this.amount = Number(amount) * -1;
+
+        this.memo = memo;
     }
 
     // Update the listed category or description based on specific rules
     transform(): Expense {
         let dateAsDate = new Date(this.date);
 
-        // Geico Auto Insurance should be categorized as Insurance
-        if (this.description.includes("GEICO")) {
+        // Categorize Insurance related expenses
+        if (this.description.includes("GEICO") ||
+            this.description.includes("JEWELERS-MUTUAL")
+        )
             this.category = "Insurance";
-        }
 
         // All Apple charges
         if (this.description == "APPLE.COM/BILL") {
@@ -49,24 +53,34 @@ export default class Expense {
             }
         }
         
-        // All gas and Automotive expenses should be categorized as Auto Expenses
-        if ((this.category == "Gas") || (this.category == "Automotive")) {
+        // Categorize Auto Expenses
+        if (this.category == "Gas" ||
+            this.category == "Automotive" ||
+            this.description.includes("TCP ") ||
+            this.description.includes("E-Z*PASS")
+        )
             this.category = "Auto Expenses";
-        }
-
-        // EZ Pass expenses should also be listed as Auto Expenses
-        if (this.description.includes("E-Z*PASS")) {
-            this.category = "Auto Expenses";
-        }
-
-        // Parking Garage expenses should be listed as Auto Expenses
-        if (this.description.includes("TCP ")) {
-            this.category = "Auto Expenses";
-        }
 
         // Storage Unit should be listed as Utilities
         if (this.description.includes("STORAGE POST"))
             this.category = "Utilities";
+
+        // Athletic Greens should be listed as Health & Wellness
+        if (this.description == "ATHLETICGREENS")
+            this.category = "Health & Wellness";
+
+        // Categorize Takeout Food
+        if (this.description == "PRIME ENERGY CAFE" ||
+            this.description.includes("CIPOLLINA GOURMET")
+        )
+            this.category = "Takeout Food";
+
+        // Categorize additional News & Entertainment expenses
+        if (this.description == "Netflix" ||
+            this.description.includes("YouTubePremium") ||
+            this.description == "D J*WSJ"
+        )
+            this.category = "News & Entertainment";
 
         // Rename categories that Chase uses to those that we use
         switch(this.category) {
@@ -82,6 +96,10 @@ export default class Expense {
                 this.category = "Takeout Food";
                 break;
             }
+            case "Gifts & Donations": {
+                this.category = "Gifts";
+                break;
+            }
             case "Home": {
                 this.category = "Home Products";
                 break;
@@ -91,23 +109,6 @@ export default class Expense {
                 break;
             }
         }
-
-        // // Any generic Shopping expense should be listed as Misc Shopping
-        // if (this.category == "Shopping")
-        //     this.category = "Misc Shopping";
-
-        // // Food & Drink should be listed as Takeout Food
-        // if (this.category == "Food & Drink")
-        //     this.category = "Takeout Food";
-
-        // // Entertainment should be listed as News & Entertainment
-        // if (this.category == "Entertainment")
-        //     this.category = "News & Entertainment";
-
-        // // Home should be listed as Home Products
-        // if (this.category == "Home") {
-        //     this.category = "Home Products";
-        // }
 
         return this;
     }

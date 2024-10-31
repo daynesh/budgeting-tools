@@ -10,6 +10,7 @@ web_modules/
 
 # IDE files
 .vscode/
+.DS_Store
 
 # Any input and/or output files
 input.csv

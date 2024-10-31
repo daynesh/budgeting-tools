@@ -70,7 +70,8 @@ if (options.inputFile) {
                 inputTransaction.transactionDate,
                 inputTransaction.description,
                 inputTransaction.category,
-                inputTransaction.amount
+                inputTransaction.amount,
+                inputTransaction.memo
             )
 
             // Append output to our array of transformed expenses
@@ -91,11 +92,13 @@ if (options.inputFile) {
         const outputFilename = "output.csv";
         console.log("Output location: ", outputFilename);
 
-        // Now write the listOfExpenses out to a csv file
+        // Initialize up our write stream & stringify object
         const writableStream = fs.createWriteStream(outputFilename);
-        const outputHeaders = ["date", "amount", "description", "category"];
-
-        const stringifier = stringify({header: true, columns: outputHeaders});
+        const outputHeaders = ["date", "amount", "description", "category", "memo"];
+        const stringifier = stringify({
+            header: true,
+            columns: outputHeaders
+        });
 
         // Now write list of expenses into our output csv file
         listOfExpenses.forEach( (expense) => {
