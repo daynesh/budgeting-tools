@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import figlet from "figlet";
 import { parse } from "csv-parse";
+import { stringify } from "csv-stringify";
 
 import Expense from "./expense.js";
 
@@ -12,6 +13,7 @@ program
   .version("1.0.0")
   .description("An example CLI for managing a directory")
   .requiredOption("-i, --inputFile [value]", "Input CSV file to parse")
+  .option("-m, --month [mm]", "Only output expenses associated with the specified month")
   .parse(process.argv);
 
 const options = program.opts();
@@ -50,8 +52,6 @@ if (options.inputFile) {
             // Increment line number counter
             lineNumber += 1;
 
-            console.log(`Transaction #${lineNumber}: `, inputTransaction);
-
             // Skip header line
             if (lineNumber == 1)
                 continue;
@@ -59,6 +59,10 @@ if (options.inputFile) {
             // Skip over transactions that are "credits" as we're only interested in tracking expenses
             var amountAsUsd = parseFloat(inputTransaction.amount);
             if (amountAsUsd >= 0)
+                continue;
+
+            // Skip transactions associated with other months
+            if ((options.month) && (options.month != inputTransaction.transactionDate.split("/")[0]))
                 continue;
 
             // Initialize the output transaction
@@ -80,8 +84,23 @@ if (options.inputFile) {
     });
 
     parser.on("end", function() {
-        console.log("Here's our transformed list of expenses", listOfExpenses);
+        console.log(figlet.textSync("Success!"));
+        console.log("Number of transactions processed: ", lineNumber);
+        console.log("Number of expenses outputted: ", listOfExpenses.length);
 
-        console.log(figlet.textSync("Finished!"));
+        const outputFilename = "output.csv";
+        console.log("Output location: ", outputFilename);
+
+        // Now write the listOfExpenses out to a csv file
+        const writableStream = fs.createWriteStream(outputFilename);
+        const outputHeaders = ["date", "amount", "description", "category"];
+
+        const stringifier = stringify({header: true, columns: outputHeaders});
+
+        // Now write list of expenses into our output csv file
+        listOfExpenses.forEach( (expense) => {
+            stringifier.write(expense);
+        });
+        stringifier.pipe(writableStream);
     });
 }

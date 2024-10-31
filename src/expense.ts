@@ -1,11 +1,11 @@
 export default class Expense {
-    date: Date;
+    date: string;
     description: string;
     category: string;
     amount: Number;
 
     constructor(date: string, description: string, category: string, amount: string) {
-        this.date = new Date(date);
+        this.date = date;
         this.description = description;
         this.category = category;
 
@@ -14,7 +14,9 @@ export default class Expense {
     }
 
     // Update the listed category or description based on specific rules
-    transform(): Expense {        
+    transform(): Expense {
+        let dateAsDate = new Date(this.date);
+
         // Geico Auto Insurance should be categorized as Insurance
         if (this.description.includes("GEICO")) {
             this.category = "Insurance";
@@ -33,15 +35,15 @@ export default class Expense {
             }
 
             // Subscriptions managed by Apple
-            if (this.date.getDate() == 14) {
-                this.category = "Utility";
+            if (dateAsDate.getDate() == 14) {
+                this.category = "Utilities";
                 this.description += " - Apple iCloud+ Storage";
             }
-            else if (this.date.getDate() == 18) {
+            else if (dateAsDate.getDate() == 18) {
                 this.category = "News & Entertainment";
                 this.description += " - Paramount+";
             }
-            else if (this.date.getDate() == 21) {
+            else if (dateAsDate.getDate() == 21) {
                 this.category = "News & Entertainment";
                 this.description += " - AppleTV+";
             }
@@ -62,13 +64,50 @@ export default class Expense {
             this.category = "Auto Expenses";
         }
 
-        // Any generic Shopping expense should be listed as Misc Shopping
-        if (this.category == "Shopping")
-            this.category = "Misc Shopping";
+        // Storage Unit should be listed as Utilities
+        if (this.description.includes("STORAGE POST"))
+            this.category = "Utilities";
 
-        // Food & Drink should be listed as Takeout Food
-        if (this.category == "Food & Drink")
-            this.category = "Takeout Food";
+        // Rename categories that Chase uses to those that we use
+        switch(this.category) {
+            case "Bills & Utilities": {
+                this.category = "Utilities";
+                break;
+            }
+            case "Entertainment": {
+                this.category = "News & Entertainment";
+                break;
+            }
+            case "Food & Drink": {
+                this.category = "Takeout Food";
+                break;
+            }
+            case "Home": {
+                this.category = "Home Products";
+                break;
+            }
+            case "Shopping": {
+                this.category = "Misc Shopping";
+                break;
+            }
+        }
+
+        // // Any generic Shopping expense should be listed as Misc Shopping
+        // if (this.category == "Shopping")
+        //     this.category = "Misc Shopping";
+
+        // // Food & Drink should be listed as Takeout Food
+        // if (this.category == "Food & Drink")
+        //     this.category = "Takeout Food";
+
+        // // Entertainment should be listed as News & Entertainment
+        // if (this.category == "Entertainment")
+        //     this.category = "News & Entertainment";
+
+        // // Home should be listed as Home Products
+        // if (this.category == "Home") {
+        //     this.category = "Home Products";
+        // }
 
         return this;
     }
