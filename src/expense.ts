@@ -16,7 +16,10 @@ export default class Expense {
         this.memo = memo;
     }
 
-    // Update the listed category or description based on specific rules
+    /**
+     * Update the listed category or description based on specific rules
+     * @returns A single, normalized expense object
+     */
     transform(): Expense {
         let dateAsDate = new Date(this.date);
 
