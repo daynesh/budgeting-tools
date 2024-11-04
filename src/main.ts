@@ -7,6 +7,7 @@ import { stringify } from "csv-stringify";
 
 import Expense from "./expense.js";
 import TransactionsParser from "./transactionsParser.js";
+import ChaseTransactionsParser from "./chaseTransactionsParser.js";
 
 /**
  * Write the list of expenses to an output csv file
@@ -56,15 +57,30 @@ function main() {
     });
 
     // Instantiate our transaction parser and extract our expenses
-    var parser = new TransactionsParser(options.source, listOfTransactions, options.month);
-    const normalizedExpenses = parser.extractExpenses();
+    let transactionsParser: TransactionsParser;
+    let normalizedExpenses: Expense[];
+    switch(options.source) {
+        case "chase": {
+            transactionsParser = new ChaseTransactionsParser(listOfTransactions, options.month);
+            normalizedExpenses = transactionsParser.extractExpenses();
+            break;
+        }
+        // case "target": {
+        //     transactionsParser = new TargetTransactionsParser(listOfTransactions, options.month);
+        //     normalizedExpenses = transactionsParser.extractExpenses();
+        //     break;
+        // }
+        default: {
+            throw new Error("Invalid source type specified: " + options.source);
+        }
+    }
 
     // Write list of expenses to output file
     writeExpenses(normalizedExpenses, options.outputFile);
 
     // Summarize everything
     console.log(figlet.textSync("Success!"));
-    console.log("Number of transactions processed: ", parser.getNumOfTransactions());
+    console.log("Number of transactions processed: ", transactionsParser.getNumOfTransactions());
     console.log("Number of expenses outputted: ", normalizedExpenses.length);
     console.log("Output location: ", options.outputFile);
 }
