@@ -15,3 +15,5 @@ web_modules/
 # Any input and/or output files
 input.csv
 output.csv
+inputFiles/
+outputFiles/
