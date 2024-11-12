@@ -1,4 +1,4 @@
-import Expense from "./expense.js";
+import Expense from "./expense";
 
 export default abstract class TransactionsParser {
     listOfTransactions: [];

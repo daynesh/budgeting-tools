@@ -6,8 +6,8 @@ import { parse } from "csv-parse/sync";
 import { stringify } from "csv-stringify";
 
 import Expense from "./expense.js";
-import TransactionsParser from "./transactionsParser.js";
-import ChaseTransactionsParser from "./chaseTransactionsParser.js";
+import TransactionsParser from "./transactionsParser";
+import ChaseTransactionsParser from "./chaseTransactionsParser";
 
 /**
  * Write the list of expenses to an output csv file

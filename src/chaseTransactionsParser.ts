@@ -1,5 +1,5 @@
-import TransactionsParser from "./transactionsParser.js";
-import Expense from "./expense.js";
+import TransactionsParser from "./transactionsParser";
+import Expense from "./expense";
 
 export default class ChaseTransactionsParser extends TransactionsParser {
 
