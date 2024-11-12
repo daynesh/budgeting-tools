@@ -8,6 +8,7 @@ import { stringify } from "csv-stringify";
 import Expense from "./expense.js";
 import TransactionsParser from "./transactionsParser";
 import ChaseTransactionsParser from "./chaseTransactionsParser";
+import TargetTransactionsParser from "./targetTransactionsParser.js";
 
 /**
  * Write the list of expenses to an output csv file
@@ -40,8 +41,8 @@ function main() {
     .version("1.0.0")
     .description("An example CLI for managing a directory")
     .requiredOption("-i, --inputFile <value>", "Input CSV file to parse")
-    .option("-m, --month <mm>", "Limit expenses to those associated with the specified month (ex: 10 for October")
-    .option("-s, --source <type>", "Specifies the source of the input csv file", "chase")
+    .option("-m, --month <mm>", "Limit expenses to those associated with the specified month (ex: 10 for October)")
+    .option("-s, --source <type>", "Specifies the source of the input csv file (chase, target, etc.)", "chase")
     .option("-o, --outputFile <value>", "Output file to save our normalized expenses", "output.csv")
     .parse(process.argv);
 
@@ -53,7 +54,8 @@ function main() {
 
     // Parse our input file to get our normalized list of expenses
     const listOfTransactions = parse(fileContent, {
-        columns: true
+        columns: true,
+        skip_empty_lines: true,
     });
 
     // Instantiate our transaction parser and extract our expenses
@@ -65,11 +67,11 @@ function main() {
             normalizedExpenses = transactionsParser.extractExpenses();
             break;
         }
-        // case "target": {
-        //     transactionsParser = new TargetTransactionsParser(listOfTransactions, options.month);
-        //     normalizedExpenses = transactionsParser.extractExpenses();
-        //     break;
-        // }
+        case "target": {
+            transactionsParser = new TargetTransactionsParser(listOfTransactions, options.month);
+            normalizedExpenses = transactionsParser.extractExpenses();
+            break;
+        }
         default: {
             throw new Error("Invalid source type specified: " + options.source);
         }
