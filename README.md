@@ -129,8 +129,10 @@ This tool was created to do just that but is intended to be simple - a CLI that 
 ## Usage
 
 ```sh
-$ node bin/main.js -h
+$ ❯ node bin/main.js -f inputFiles/chase-freedom-oct-2024.csv -t inputFiles/target-cc-oct-2024.csv -m 10 -o outputFiles/output-oct-2024.csv
 ```
+### Explanation
+This example usage takes credit card transactions from Chase Freedom and Target and categorizes their relevant expenses into an output CSV file making sure to only parse transactions from the month of October.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

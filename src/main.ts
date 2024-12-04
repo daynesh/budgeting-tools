@@ -32,25 +32,17 @@ function writeExpenses(listOfExpenses: Expense[], filename: string) {
 }
 
 /**
- * Execution in our tool all begins here
+ * Extracts a list of normalized expenses from a CSV file using custom parsers
+ * @param inputFile
+ * @param sourceType
  */
-function main() {
-    // Define CLI options
-    const program = new Command();
-    program
-    .version("1.0.0")
-    .description("An example CLI for managing a directory")
-    .requiredOption("-i, --inputFile <value>", "Input CSV file to parse")
-    .option("-m, --month <mm>", "Limit expenses to those associated with the specified month (ex: 10 for October)")
-    .option("-s, --source <type>", "Specifies the source of the input csv file (chase, target, etc.)", "chase")
-    .option("-o, --outputFile <value>", "Output file to save our normalized expenses", "output.csv")
-    .parse(process.argv);
-
-    // Fetch CLI options
-    const options = program.opts();
+function extractExpensesFromList(inputFile: string, filterByMonth: string, sourceType: string): Expense[] {
+    // Instantiate our transaction parser and extract our expenses
+    let transactionsParser: TransactionsParser;
+    let listToReturn: Expense[];
 
     // Fetch the contents of the input file
-    const fileContent = fs.readFileSync(options.inputFile);
+    const fileContent = fs.readFileSync(inputFile);
 
     // Parse our input file to get our normalized list of expenses
     const listOfTransactions = parse(fileContent, {
@@ -58,23 +50,62 @@ function main() {
         skip_empty_lines: true,
     });
 
-    // Instantiate our transaction parser and extract our expenses
-    let transactionsParser: TransactionsParser;
-    let normalizedExpenses: Expense[];
-    switch(options.source) {
-        case "chase": {
-            transactionsParser = new ChaseTransactionsParser(listOfTransactions, options.month);
-            normalizedExpenses = transactionsParser.extractExpenses();
+    switch(sourceType) {
+        case "freedom": {
+            transactionsParser = new ChaseTransactionsParser(listOfTransactions, filterByMonth);
+            listToReturn = transactionsParser.extractExpenses();
             break;
         }
         case "target": {
-            transactionsParser = new TargetTransactionsParser(listOfTransactions, options.month);
-            normalizedExpenses = transactionsParser.extractExpenses();
+            transactionsParser = new TargetTransactionsParser(listOfTransactions, filterByMonth);
+            listToReturn = transactionsParser.extractExpenses();
             break;
         }
         default: {
-            throw new Error("Invalid source type specified: " + options.source);
+            throw new Error("Invalid source type specified: " + sourceType);
         }
+    }
+
+    return listToReturn;
+}
+
+/**
+ * Execution in our tool all begins here
+ */
+function main() {
+    // Define CLI options
+    const program = new Command();
+    program
+    .version("1.0.0")
+    .description("A CLI tool for categorizing expenses from different credit card platforms")
+    .option("-f, --freedom <value>", "Specifies the Chase Freedom input CSV file to parse", false)
+    .option("-t --target <value>", "Specifies the Target input CSV file to parse", false)
+    .option("-m, --month <mm>", "Limit expenses to those associated with the specified month (ex: 10 for October)")
+    .option("-o, --outputFile <value>", "Output file to save our normalized expenses", "output.csv")
+    .parse(process.argv);
+
+    // Fetch CLI options
+    const options = program.opts();
+
+    // Ensure we have at least one input file to parse
+    if ((!options.freedom) && (!options.target)) {
+        console.error("ERROR: Must specify an input file\n");
+        program.help();
+    }
+
+    // Instantiate our list of normalized expenses
+    let normalizedExpenses: Expense[] = [];
+
+    // Lets handle transactions from Chase Freedom
+    if (options.freedom) {
+        // Append expenses to our normalizedExpenses array
+        normalizedExpenses.push(...extractExpensesFromList(options.freedom, options.month, "freedom"));
+    }
+
+    // Lets handle transactions from Target
+    if (options.target) {
+        // Append expenses to our normalizedExpenses array
+        normalizedExpenses.push(...extractExpensesFromList(options.target, options.month, "target"));
     }
 
     // Write list of expenses to output file
@@ -82,7 +113,6 @@ function main() {
 
     // Summarize everything
     console.log(figlet.textSync("Success!"));
-    console.log("Number of transactions processed: ", transactionsParser.getNumOfTransactions());
     console.log("Number of expenses outputted: ", normalizedExpenses.length);
     console.log("Output location: ", options.outputFile);
 }
