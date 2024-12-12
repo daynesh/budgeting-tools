@@ -51,6 +51,7 @@ function extractExpensesFromList(inputFile: string, filterByMonth: string, sourc
     });
 
     switch(sourceType) {
+        case "sapphire":
         case "freedom": {
             transactionsParser = new ChaseTransactionsParser(listOfTransactions, filterByMonth);
             listToReturn = transactionsParser.extractExpenses();
@@ -79,7 +80,8 @@ function main() {
     .version("1.0.0")
     .description("A CLI tool for categorizing expenses from different credit card platforms")
     .option("-f, --freedom <value>", "Specifies the Chase Freedom input CSV file to parse", false)
-    .option("-t --target <value>", "Specifies the Target input CSV file to parse", false)
+    .option("-t, --target <value>", "Specifies the Target input CSV file to parse", false)
+    .option("-s, --sapphire <value>", "Specifies the Sapphire Preferred input CSV file to parse", false)
     .option("-m, --month <mm>", "Limit expenses to those associated with the specified month (ex: 10 for October)")
     .option("-o, --outputFile <value>", "Output file to save our normalized expenses", "output.csv")
     .parse(process.argv);
@@ -88,8 +90,8 @@ function main() {
     const options = program.opts();
 
     // Ensure we have at least one input file to parse
-    if ((!options.freedom) && (!options.target)) {
-        console.error("ERROR: Must specify an input file\n");
+    if ((!options.freedom) && (!options.target) && (!options.sapphire)) {
+        console.error("ERROR: Must specify at least one input file\n");
         program.help();
     }
 
@@ -106,6 +108,12 @@ function main() {
     if (options.target) {
         // Append expenses to our normalizedExpenses array
         normalizedExpenses.push(...extractExpensesFromList(options.target, options.month, "target"));
+    }
+
+    // Lets handle transactions from Target
+    if (options.sapphire) {
+        // Append expenses to our normalizedExpenses array
+        normalizedExpenses.push(...extractExpensesFromList(options.sapphire, options.month, "sapphire"));
     }
 
     // Write list of expenses to output file
