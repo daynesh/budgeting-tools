@@ -113,7 +113,7 @@ export default class ChaseTransactionsParser extends TransactionsParser {
             expense.category = "Takeout Food";
 
         // Categorize additional News & Entertainment expenses
-        if (expense.description == "Netflix" ||
+        if (expense.description.toLowerCase().includes("netflix") ||
             expense.description.includes("YouTubePremium") ||
             expense.description == "D J*WSJ"
         )
@@ -137,12 +137,9 @@ export default class ChaseTransactionsParser extends TransactionsParser {
                 expense.category = "Gifts";
                 break;
             }
-            case "Home": {
-                expense.category = "Home Products";
-                break;
-            }
+            case "Home":
             case "Shopping": {
-                expense.category = "Misc Shopping";
+                expense.category = "Household/Personal";
                 break;
             }
         }
