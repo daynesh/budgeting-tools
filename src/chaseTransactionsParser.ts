@@ -94,7 +94,8 @@ export default class ChaseTransactionsParser extends TransactionsParser {
         if (expense.category == "Gas" ||
             expense.category == "Automotive" ||
             expense.description.includes("TCP ") ||
-            expense.description.includes("E-Z*PASS")
+            expense.description.includes("E-Z*PASS") ||
+            expense.description.toLowerCase().includes("dof parking")
         )
             expense.category = "Auto Expenses";
 
