@@ -94,7 +94,8 @@ export default class ChaseTransactionsParser extends TransactionsParser {
         if (expense.category == "Gas" ||
             expense.category == "Automotive" ||
             expense.description.includes("TCP ") ||
-            expense.description.includes("E-Z*PASS")
+            expense.description.includes("E-Z*PASS") ||
+            expense.description.toLowerCase().includes("dof parking")
         )
             expense.category = "Auto Expenses";
 
@@ -113,7 +114,7 @@ export default class ChaseTransactionsParser extends TransactionsParser {
             expense.category = "Takeout Food";
 
         // Categorize additional News & Entertainment expenses
-        if (expense.description == "Netflix" ||
+        if (expense.description.toLowerCase().includes("netflix") ||
             expense.description.includes("YouTubePremium") ||
             expense.description == "D J*WSJ"
         )
@@ -137,12 +138,9 @@ export default class ChaseTransactionsParser extends TransactionsParser {
                 expense.category = "Gifts";
                 break;
             }
-            case "Home": {
-                expense.category = "Home Products";
-                break;
-            }
+            case "Home":
             case "Shopping": {
-                expense.category = "Misc Shopping";
+                expense.category = "Household/Personal";
                 break;
             }
         }
