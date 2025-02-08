@@ -64,7 +64,7 @@ export default class TargetTransactionsParser extends TransactionsParser {
         // Rename categories that Chase uses to those that we use
         switch(expense.category) {
             case "Household": {
-                expense.category = "Home Products";
+                expense.category = "Household/Personal";
                 break;
             }
         }
