@@ -1,5 +1,6 @@
 import TransactionsParser from "./transactionsParser";
 import Expense from "./expense";
+import exp from "constants";
 
 export default class ChaseTransactionsParser extends TransactionsParser {
 
@@ -65,6 +66,9 @@ export default class ChaseTransactionsParser extends TransactionsParser {
 
         // All Apple charges
         if (expense.description == "APPLE.COM/BILL") {
+            // Default category & description for these expenses
+            expense.category = "News & Entertainment";
+
             // AppleCare+ expenses should be categorized as Insurance
             if (expense.amount == 5.43) {
                 expense.description += " - AppleCare+ for AppleWatch";
@@ -81,11 +85,9 @@ export default class ChaseTransactionsParser extends TransactionsParser {
                 expense.description += " - Apple iCloud+ Storage";
             }
             else if (dateAsDate.getDate() == 18) {
-                expense.category = "News & Entertainment";
                 expense.description += " - Paramount+";
             }
             else if (dateAsDate.getDate() == 21) {
-                expense.category = "News & Entertainment";
                 expense.description += " - AppleTV+";
             }
         }
@@ -120,6 +122,12 @@ export default class ChaseTransactionsParser extends TransactionsParser {
         )
             expense.category = "News & Entertainment";
 
+        // Categorize Afterschool expenses
+        if (expense.description.toLowerCase().includes("soccer friends")) {
+            expense.category = "Childcare Expenses";
+            expense.description += " - Afterschool";
+        }
+
         // Rename categories that Chase uses to those that we use
         switch(expense.category) {
             case "Bills & Utilities": {
@@ -139,8 +147,13 @@ export default class ChaseTransactionsParser extends TransactionsParser {
                 break;
             }
             case "Home":
-            case "Shopping": {
+            case "Shopping":
+            case "Personal": {
                 expense.category = "Household/Personal";
+                break;
+            }
+            case "Education": {
+                expense.category = "Childcare Savings";
                 break;
             }
         }

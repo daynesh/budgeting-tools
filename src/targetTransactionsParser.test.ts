@@ -17,7 +17,7 @@ test('transform the Auto Insurance transaction into the right expense parameters
     
     // Now validate that we've transformed the right fields and left the others
     expect(expenses[0].amount).toBe(70.32);
-    expect(expenses[0].category).toBe("Home Products");
+    expect(expenses[0].category).toBe("Household/Personal");
     expect(expenses[0].date).toBe("10/30/2024");
     expect(expenses[0].description).toBe("Target - Household Product");
 });
